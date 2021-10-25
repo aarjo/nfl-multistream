@@ -1,0 +1,154 @@
+{% load static %}
+
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://bootswatch.com/5/darkly/bootstrap.min.css" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NFL Multistream</title>
+</head>
+
+<body>
+    <div id="app">
+        <div class="container-fluid">
+            <div class="d-flex flex-column justify-content-center align-items-center"
+                style="padding-bottom: 8px; padding-top: 8px;">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-plus-lg" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd"
+                                d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z" />
+                        </svg>
+                        &nbspAdd game
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                        <li v-for="game in allGames"><a v-on:click="addGame([[game.id]])" class="dropdown-item"
+                                href="#">[[game.away_team]] @ [[game.home_team]]</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row">
+                <div v-for="game in enabledGames" class="col-6">
+                    <div class="d-flex flex-row">
+                        <div class="p-2">
+                            <h5>[[game.away_team]] @ [[game.home_team]]</h5>
+                        </div>
+                        <div class="p-2">
+                            <button type="button" class="btn btn-dark" v-on:click="moveGameUp([[game.id]])">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-caret-up-fill" viewBox="0 0 16 16">
+                                    <path
+                                        d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="p-2">
+                            <button type="button" class="btn btn-dark" v-on:click="moveGameDown([[game.id]])">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-caret-down-fill" viewBox="0 0 16 16">
+                                    <path
+                                        d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="p-2">
+                            <button type="button" class="btn btn-dark" v-on:click="refresh([[game.id]])">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-arrow-repeat" viewBox="0 0 16 16">
+                                    <path
+                                        d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z" />
+                                    <path fill-rule="evenodd"
+                                        d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="ms-auto p-2">
+                            <button type="button" class="btn btn-dark" v-on:click="removeGame([[game.id]])">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-x" viewBox="0 0 16 16">
+                                    <path
+                                        d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <iframe :id="game.id" v-bind:src="[[game.embed_link]]" allowfullscreen title="NFL"
+                            height="580px" width="100%"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+{{ nfldata|json_script:"nfldata" }}
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/vue"></script> -->
+<!-- development version, includes helpful console warnings -->
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- JavaScript Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+    crossorigin="anonymous"></script>
+
+<script>
+    function move(array, element, delta) {
+        var index = array.indexOf(element);
+        var newIndex = index + delta;
+        if (newIndex < 0 || newIndex == array.length) return; //Already at the top or bottom.
+        var indexes = [index, newIndex].sort(); //Sort the indices
+        array.splice(indexes[0], 2, array[indexes[1]], array[indexes[0]]); //Replace from lowest index, two elements, reverting the order
+    };
+
+    function moveup(array, element) {
+        move(array, element, -1);
+    };
+
+    function movedown(array, element) {
+        move(array, element, 1);
+    };
+    function getGame(id, gameList) {
+        foundGame = gameList.find(game => game.id == id);
+        if (!foundGame) {
+            alert(`Game with id ${id} not found`);
+        }
+        return foundGame;
+    }
+    const nfldata = JSON.parse(document.getElementById('nfldata').textContent);
+    const app = new Vue({
+        delimiters: ["[[", "]]"],
+        el: '#app',
+        data: {
+            allGames: nfldata.data,
+            enabledGames: [],
+        },
+        methods: {
+            moveGameUp: function (id) {
+                game = getGame(id, this.enabledGames);
+                moveup(this.enabledGames, game);
+            },
+            moveGameDown: function (id) {
+                game = getGame(id, this.enabledGames);
+                movedown(this.enabledGames, game);
+            },
+            refresh: function (id) {
+                document.getElementById(id).src = document.getElementById(id).src
+            },
+            removeGame: function (id) {
+                game = getGame(id, this.enabledGames);
+                this.enabledGames.splice(this.enabledGames.indexOf(game), 1);
+            },
+            addGame: function (id) {
+                game = getGame(id, this.allGames);
+                if (!this.enabledGames.includes(game)) {
+                    this.enabledGames.push(game);
+                }
+            },
+        },
+    });
+</script>
+
+</html>
