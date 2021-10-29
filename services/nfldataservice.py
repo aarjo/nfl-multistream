@@ -72,5 +72,12 @@ def getJsonData():
     r = requests.get("http://buff-streamz.com/nfl-streams")
     parser = NFLParser()
     parser.feed(r.text)
+
+    add_test_games = False
+    if add_test_games:
+        Object = lambda **kwargs: type("Object", (), kwargs)
+        parser.all_games.append(Object(home_team='Test 1', away_team='Test Away 1', id= 154, embed_link= 'http://bfst.to/embe/nfl.php', date='1234'))
+        parser.all_games.append(Object(home_team='Test 2', away_team='Test Away 2', id= 155, embed_link= 'http://bfst.to/embe/nfl.php', date='1234'))
+        parser.all_games.append(Object(home_team='Test 3', away_team='Test Away 3', id= 156, embed_link= 'http://bfst.to/embe/nfl.php', date='1234'))
     
     return dict({'data': list(map(lambda game: dict({'id': game.id, 'home_team': game.home_team, 'away_team': game.away_team, 'embed_link': game.embed_link, 'date': game.date}), parser.all_games))})
