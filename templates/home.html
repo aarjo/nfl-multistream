@@ -30,7 +30,7 @@
                 </div>
             </div>
             <div class="row">
-                <div v-for="game in enabledGames" class="col-6">
+                <div v-for="(game, index) in enabledGames" class="mx-auto" :class="[[(index % 2 == 0 && index == enabledGames.length - 1) ? 'col-12' : 'col-6']]">
                     <div class="d-flex flex-row">
                         <div class="p-2">
                             <h5>[[game.away_team]] @ [[game.home_team]]</h5>
@@ -76,7 +76,7 @@
                     </div>
                     <div class="row">
                         <iframe :id="game.id" v-bind:src="[[game.embed_link]]" allowfullscreen title="NFL"
-                            height="580px" width="100%"></iframe>
+                            :height="[[getHeightPx()]]" width="100%"></iframe>
                     </div>
                 </div>
             </div>
@@ -147,6 +147,13 @@
                     this.enabledGames.push(game);
                 }
             },
+            getHeightPx: function() {
+                if (this.enabledGames.length == 1) {
+                    return "1150px";
+                } else {
+                    return "530px";
+                }
+            }
         },
     });
 </script>
