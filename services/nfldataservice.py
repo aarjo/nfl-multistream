@@ -1,10 +1,12 @@
 from html.parser import HTMLParser
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 import json
 from pprint import pprint
 import requests
 from pytz import timezone
+
+TIMEZONE = timezone('US/Eastern')
 
 def convertWatchToEmbedUrl(watch):
     beg_index = watch.index('nfl-')
@@ -51,7 +53,7 @@ class NFLParser(HTMLParser):
                 if self.parsing_game:
                     self.parsing_game = False
                     full_datetime = self.date_info.date.combine(self.date_info.date, self.date_info.time.time())
-                    self.curr_game.date = timezone('US/Eastern').localize(full_datetime)
+                    self.curr_game.date = TIMEZONE.localize(full_datetime)
                     self.all_games.append(self.curr_game)
             else:
                 self.nested_level -= 1
@@ -68,6 +70,11 @@ class NFLParser(HTMLParser):
             formatted = data.upper().replace('EST','').strip()
             self.date_info.time = datetime.strptime(formatted, '%I:%M %p')
 
+def _gameHasNotAlreadyEnded(game):
+    game_end = game.date + timedelta(hours=4)
+    now = datetime.now(TIMEZONE)
+    return now < game_end
+
 def getJsonData():
     r = requests.get("http://buff-streamz.com/nfl-streams")
     parser = NFLParser()
@@ -80,4 +87,5 @@ def getJsonData():
         parser.all_games.append(Object(home_team='Test 2', away_team='Test Away 2', id= 155, embed_link= 'http://bfst.to/embe/nfl.php', date='1234'))
         parser.all_games.append(Object(home_team='Test 3', away_team='Test Away 3', id= 156, embed_link= 'http://bfst.to/embe/nfl.php', date='1234'))
     
-    return dict({'data': list(map(lambda game: dict({'id': game.id, 'home_team': game.home_team, 'away_team': game.away_team, 'embed_link': game.embed_link, 'date': game.date}), parser.all_games))})
+    filtered_games = filter(lambda game :_gameHasNotAlreadyEnded(game), parser.all_games)
+    return dict({'data': list(map(lambda game: dict({'id': game.id, 'home_team': game.home_team, 'away_team': game.away_team, 'embed_link': game.embed_link, 'date': game.date}), filtered_games))})
