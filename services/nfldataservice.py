@@ -87,5 +87,5 @@ def getJsonData():
         parser.all_games.append(Object(home_team='Test 2', away_team='Test Away 2', id= 155, embed_link= 'http://bfst.to/embe/nfl.php', date='1234'))
         parser.all_games.append(Object(home_team='Test 3', away_team='Test Away 3', id= 156, embed_link= 'http://bfst.to/embe/nfl.php', date='1234'))
     
-    filtered_games = filter(lambda game :_gameHasNotAlreadyEnded(game), parser.all_games)
+    filtered_games = filter(_gameHasNotAlreadyEnded, parser.all_games)
     return dict({'data': list(map(lambda game: dict({'id': game.id, 'home_team': game.home_team, 'away_team': game.away_team, 'embed_link': game.embed_link, 'date': game.date}), filtered_games))})
